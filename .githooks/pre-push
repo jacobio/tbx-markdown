@@ -1,0 +1,14 @@
+#!/bin/bash
+# Safety net: abort push if file:// URLs are in committed content.
+# With the tbx-url filter configured, this should never trigger.
+
+for file in install.tbxc README.md; do
+  if git show "HEAD:$file" 2>/dev/null | grep -q 'file://'; then
+    echo "Error: $file contains local file:// URLs." >&2
+    echo "" >&2
+    echo "Configure the smudge/clean filter:" >&2
+    echo "  git config filter.tbx-url.clean 'scripts/url-filter.sh clean'" >&2
+    echo "  git config filter.tbx-url.smudge 'scripts/url-filter.sh smudge'" >&2
+    exit 1
+  fi
+done
