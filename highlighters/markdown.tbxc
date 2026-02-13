@@ -1,0 +1,139 @@
+// Reset to defaults
+pattern: .*
+    size: 18
+    bold: no
+    italic: no
+    background: #f7f7f7
+    color: #000000
+    strike: no
+    underline: no
+    indent: 0
+    first-indent: 0
+    line-spacing: 1.5
+
+// Emoji
+pattern: (\p{Emoji_Presentation}|\p{Emoji}\uFE0F)
+    size: 13.99
+
+// Headings
+pattern: ^#+ .+
+    bold: yes
+    size: 18
+
+// Bold
+pattern: (\*\*|__)(.*?)\1
+    bold: yes
+    size: 18
+
+// Italic
+pattern: (\*|_)(.*?)\1
+    italic: yes
+    size: 18
+
+// Bold and Italic
+pattern: (\*\*\*|___)(.*?)\1 
+    bold: yes
+    italic: yes
+    size: 18
+pattern: (_\*\*.+\*\*_|\*\*_.+_\*\*)
+    bold: yes
+    italic: yes
+    size: 18
+
+// “Look forward” pattern for links
+// matching on the opening bracket
+pattern: (\[|\!\[)(?=[^\[\]]*\](?:\(|\[))
+    color: #B6B3B1
+// “Look forward” pattern for links
+// matching on the closing bracket
+pattern: \](?=(\[.*?\]|\(.*?\)))
+    color: #B6B3B1ji 
+// Pattern for the URL
+pattern: \](\[.*?\]|\(.*?\))
+    color: #B6B3B1
+
+// Pattern for footnotes
+pattern: \[\^.*?\](\s|:)
+    color: #B6B3B1
+
+// Pattern for reference links
+pattern: \[[^\^].*?\]:\s?.*
+    color: #B6B3B1
+
+// URLs
+pattern: \b(?:https?:\/\/|www\.)[^\s/$.?#].[^\s]*\b
+    underline: yes
+
+// Inline code
+pattern: (`)(.*?)\1
+    background: #EEEEEE
+
+// Highlights
+pattern: ==.+==
+    background: #FAECA0
+
+// Strikethrough
+pattern: (~~)(.*?)\1
+    strike: yes
+
+// NOTE: Given a fixed-width font size of 18, each space is an indent of 11.
+
+// Indent ordered lists
+pattern: ^\d+\.\s.*?$
+    indent: 33
+    line-spacing: 1.5
+
+// Indent ordered sub-lists
+pattern: ^\s{4}\d+\.\s.*?$
+    indent: 77
+    line-spacing: 1.5
+
+// Indent unordered lists
+pattern: ^(-|\*)\s.*?$
+    indent: 22
+    line-spacing: 1.5
+
+// Indent unordered sub-lists
+pattern: ^\s{4}(-|\*)\s.*?$
+    indent: 66
+    line-spacing: 1.5
+
+// Indent paragraphs in lists
+pattern: ^\s{4}(?!\d+\.\s|[-*]\s).*?$
+    indent: 44
+    line-spacing: 1.5
+
+// Indent paragraphs in sub-lists
+pattern: ^\s{8}(?!\d+\.\s|[-*]\s).*?$
+    indent: 88
+    line-spacing: 1.5
+
+// Color HRs
+pattern: ^-{3,}$
+    color: #B6B3B1
+
+// Strikethrough Completed Tasks
+pattern: \s\[x\]\s.*$
+    strike: yes
+
+// Bold and color tasks
+pattern: \s\[(x|\s)\]\s
+    color: #567ACE // Blue
+    bold: yes
+    strike: no
+    size: 19
+
+// Blockquotes
+pattern: ^\>\s.*$
+    color: #575757
+    italic: yes
+
+// Code blocks
+pattern: ^```([\s\S]*?)```$
+    background: #EEEEEE
+    color: #000000
+
+// Indented Code blocks
+pattern: ^\s{4}```([\s\S]*?)```$
+    background: #EEEEEE
+    color: #000000

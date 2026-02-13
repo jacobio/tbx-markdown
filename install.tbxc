@@ -1,0 +1,170 @@
+// ============================================================
+// Enhanced Markdown Prototype TBX Installer
+// ============================================================
+//
+// This action code installs or updates the Markdown prototype
+// in the current Tinderbox document.
+//
+// If the MultiMarkdown parser (mmd) is found on the system,
+// $HTMLPreviewCommand is set to use it with sed post-processing.
+// Otherwise, it falls back to Tinderbox built-in CommonMark.
+//
+// ⚠️ WARNING: This replaces/updates the built-in Markdown prototype.
+//
+// Installs into the current document:
+//   /Prototypes/Markdown  -- Markdown writing prototype
+//   /Prototypes/Code  -- code/asset export prototype
+//   /Prototypes/HTML  -- HTML/template editing prototype
+//   /Hints/Highlighters/Markdown  -- syntax highlighter
+//   /Templates/Text Only  -- plain text export template
+//   /Templates/HTML MD and Children  -- HTML export template
+//   /Assets/Custom Styles  -- custom CSS overrides (.css)
+//   Enables the text pane selector (Preview)
+//
+// All components are fetched from GitHub at install time.
+// ============================================================
+
+var:string loc = "https://raw.githubusercontent.com/jacobio/tbx-markdown/main/";
+
+// 1. System Containers and UI /////////////////////////////////////////////////
+
+require("Hints");
+require("Preview");
+require("Prototypes");
+
+// Text-only Template
+require("Templates");
+var:string note = create("/Templates/Text Only");
+$Text(note) = "^text^";
+$HTMLExportTemplate(note) = "/Templates/Text Only";
+
+// Code Prototype
+note = create("/Prototypes/Code");
+$IsPrototype(note) = true;
+$Badge(note) = "code";
+$HTMLMarkupText(note) = false;
+$HTMLMarkdown(note) = false;
+$HTMLExportTemplate(note) = "/Templates/Text Only";
+$TextFont(note) = "Menlo-Regular";
+$TextFontSize(note) = 15;
+$SmartLinks(note) = false;
+$SmartQuotes(note) = false;
+$NoSpelling(note) = true;
+$QuoteListIndent(note) = 0;
+$QuoteListHangingIndent(note) = 0;
+$ParagraphSpacing(note) = 0;
+
+// HTML Prototype
+note = create("/Prototypes/HTML");
+$IsPrototype(note) = true;
+$Prototype(note) = "Code";
+$HTMLMarkupText(note) = true;
+$Badge(note) = "tools";
+$HTMLMarkdown(note) = false;
+$HTMLEntities(note) = false;
+$HTMLDontExport(note) = true;
+$HTMLExportChildren(note) = true;
+$OnAdd(note) = '$Prototype = "HTML"; $IsTemplate = true; $NeverComposite = true;';
+
+// 2. Create & Install Highlighter /////////////////////////////////////////////
+
+note = create("/Hints/Highlighters/Markdown");
+$Text(note) = runCommand("curl -s " + loc + "highlighters/markdown.tbxc").trim;
+$SyntaxHighlighting(note) = "Syntax";
+
+// 3. Create & Configure Markdown Prototype ////////////////////////////////////
+
+note = create("/Prototypes/Markdown");
+$IsPrototype(note) = true;
+
+// Appearance
+$Badge(note) = "📓";
+
+// Text editing
+$TextFont(note) = "Menlo-Regular";
+$TextFontSize(note) = 16;
+$TextBackgroundColor(note) = "#f7f7f7";
+$LineSpacing(note) = 150;
+$ParagraphSpacing(note) = 1;
+$SmartQuotes(note) = false;
+$SmartLinks(note) = false;
+$SyntaxHighlighting(note) = "Markdown";
+$QuickListIndent(note) = 0;
+$QuickListHangingIndent(note) = 0;
+$OnAdd(note) = '$Prototype |= "Markdown";';
+
+// HTML export
+$HTMLMarkdown(note) = true;
+$HTMLMarkupText(note) = false;
+$HTMLExportTemplate(note) = "/Templates/HTML MD and Children";
+$HTMLExportFileNameSpacer(note) = "-";
+
+// 4. Detect MultiMarkdown & Set HTMLPreviewCommand ////////////////////////////
+
+// Tinderbox runCommand() does not inherit the user's $PATH.
+// We check known installation locations in order of likelihood.
+var:string mmdPath;
+var:string testResult;
+
+// Try sourcing user's shell profile first (most reliable)
+testResult = runCommand("source ~/.zprofile 2>/dev/null; which mmd 2>/dev/null").trim;
+if (testResult.contains("/mmd")) {
+    mmdPath = testResult;
+};
+// Fallback: macOS ARM Homebrew
+if (!mmdPath) {
+    testResult = runCommand("test -x /opt/homebrew/bin/mmd && echo found").trim;
+    if (testResult == "found") { mmdPath = "/opt/homebrew/bin/mmd"; };
+};
+// Fallback: macOS Intel Homebrew
+if (!mmdPath) {
+    testResult = runCommand("test -x /usr/local/bin/mmd && echo found").trim;
+    if (testResult == "found") { mmdPath = "/usr/local/bin/mmd"; };
+};
+// Fallback: System install (Linux, etc.)
+if (!mmdPath) {
+    testResult = runCommand("test -x /usr/bin/mmd && echo found").trim;
+    if (testResult == "found") { mmdPath = "/usr/bin/mmd"; };
+};
+
+if (mmdPath) {
+    var:string sedPart = runCommand("curl -s " + loc + "config/sed-fixes.sh").trim;
+    $HTMLPreviewCommand(note) = mmdPath + " | " + sedPart;
+} else {
+    $HTMLPreviewCommand(note) = "CommonMark";
+};
+
+// 5. Create Export Templates //////////////////////////////////////////////////
+
+note = create("/Templates/HTML MD and Children");
+$Prototype(note) = "HTML";
+$Text(note) = runCommand("curl -s " + loc + "templates/html-md.html").trim;
+
+note = create("/Templates/HTML MD and Children/HTML MD item");
+$Prototype(note) = "HTML";
+$Text(note) = runCommand("curl -s " + loc + "templates/html-md-item.html").trim;
+
+// 6. Create Assets ////////////////////////////////////////////////////////////
+
+// Assets container
+note = create("/Assets");
+$HTMLDontExport(note) = true;
+$HTMLExportChildren(note) = true;
+$OnAdd(note) = '$Prototype |= "Code";';
+
+// Custom Styles CSS for Tinderbox
+note = create("/Assets/Custom Styles");
+$Prototype(note) = "Code";
+$HTMLExportExtension(note) = ".css";
+$Text(note) = runCommand("curl -s " + loc + "assets/custom-styles.css").trim;
+
+// 7. Create README ////////////////////////////////////////////////////////////
+
+note = create("/README (Markdown)");
+$SiblingOrder(note) = 1;
+$Prototype(note) = "Markdown";
+$Text(note) = runCommand("curl -s " + loc + "readme-markdown.md").trim;
+select(note);
+
+// DONE! Tada!
+show("🎉 Markdown Prototype (re)installed successfully! Enjoy 🍻", "dark bright green", "white");
