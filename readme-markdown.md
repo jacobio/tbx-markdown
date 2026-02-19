@@ -6,8 +6,7 @@ A Markdown writing environment for [Tinderbox](https://www.eastgate.com/Tinderbo
 
 ## Quick Start
 
-1. Preview the `/Assets/Custom Styles` CSS note (this loads the styling for preview)
-2. Create a new note
+1. Create a new note
 3. Set its `$Prototype` to **Markdown**
 4. Start writing Markdown
 5. Use **Option-Command-E** to toggle Preview
@@ -55,13 +54,12 @@ graph LR
     C -->|No| A
 ```
 
-**Code highlighting** — JavaScript with Prism:
+**Code highlighting** — Tinderbox action code with Prism:
 
-```javascript
-function greet(name) {
-  return `Hello, ${name}!`;
+```tinderbox
+if($Prototype == "Task") {
+   $Color = "red";
 }
-console.log(greet("Tinderbox"));
 ```
 
 **Math rendering** — the quadratic formula with MathJax:

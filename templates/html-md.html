@@ -38,6 +38,33 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/toolbar/prism-toolbar.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
 
+  <!-- Add Prism highliting for Tinderbox's Action Code -->
+  <script>
+    (function (Prism) {
+      Prism.languages.tinderbox = {
+        'comment': [
+          { pattern: /\/\/.*?\/\//, greedy: true },
+          { pattern: /\/\/.*/, greedy: true }
+        ],
+        'string': {
+          pattern: /"[^"]*"|'[^']*'|\b(?:yesterday|today|now|tomorrow)\b/i,
+          greedy: true
+        },
+        'property': /\$[A-Za-z]\w*/,
+        'function': [
+          { pattern: /\.\w+/ },
+          { pattern: /\b\w+(?=\s*\()/ }
+        ],
+        'keyword': /\b(?:if|else|true|false|var|return|empty|failed)\b/i,
+        'builtin': /\b(?:boolean|color|date|dictionary|interval|list|number|set|string)\b/i,
+        'variable': /\b(?:adornment|agent|all|ancestors|child|children|current|descendants|destination|firstSibling|grandparent|lastChild|lastSibling|my|nextItem|nextSibling|nextSiblingItem|original|parent|previous|previousItem|previousSiblingItem|prevSibling|randomChild|root|selection|siblings|source|that|this)\b/i,
+        'number': /\b\d+(?:\.\d+)?\b/,
+        'operator': /[!=<>]=?|[&|+\-*\/;]/,
+        'punctuation': /[{}(),:]/
+      };
+    }(Prism));
+  </script>
+
   <!-- Fix MultiMarkdown bare class names for Prism -->
   <!-- (e.g. "javascript" → "language-javascript"). Skips mermaid.  -->
   <script>
