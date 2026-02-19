@@ -5,7 +5,7 @@
 #   scripts/set-mode.sh local    # Use local files (for testing)
 #   scripts/set-mode.sh remote   # Use GitHub URLs (for distribution)
 #
-# Automatically discovers sibling tbx-* repos and switches
+# Automatically discovers sibling repos and switches
 # their URLs in install.tbxc as well.
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -53,8 +53,8 @@ case "$1" in
     # Switch this repo's URL
     switch_url "$REPO_DIR" "$1"
 
-    # Switch any sibling tbx-* dependency URLs found in install.tbxc
-    for dep_dir in "$REPO_DIR"/../tbx-*/; do
+    # Switch any sibling dependency URLs found in install.tbxc
+    for dep_dir in "$REPO_DIR"/../*/; do
       dep_dir="$(cd "$dep_dir" 2>/dev/null && pwd)" || continue
       [ "$dep_dir" = "$REPO_DIR" ] && continue
       [ -d "$dep_dir/.git" ] || continue
@@ -62,13 +62,11 @@ case "$1" in
     done
 
     if [ "$1" = "local" ]; then
-      git -C "$REPO_DIR" update-index --assume-unchanged "$INSTALL" 2>/dev/null
       echo "Switched to LOCAL mode."
       echo ""
       echo "Test stamp:"
       echo "  action(runCommand(\"curl -s ${LOCAL_URL}install.tbxc\"));"
     else
-      git -C "$REPO_DIR" update-index --no-assume-unchanged "$INSTALL" 2>/dev/null
       echo "Switched to REMOTE mode."
       echo ""
       echo "Install stamp:"

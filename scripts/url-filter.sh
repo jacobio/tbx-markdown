@@ -24,9 +24,9 @@ derive_remote_url() {
   echo "https://raw.githubusercontent.com/${origin}/${branch}/"
 }
 
-# Build sed arguments for all tbx-* repos (this one + siblings)
+# Build sed arguments for all sibling repos (this one + siblings)
 sed_args=()
-for dir in "$REPO_DIR"/../tbx-*/; do
+for dir in "$REPO_DIR"/../*/; do
   dir="$(cd "$dir" 2>/dev/null && pwd)" || continue
   [ -d "$dir/.git" ] || continue
 
